@@ -61,7 +61,7 @@ graph TD
     Explainer -->|Final Output| User
     Explainer -.->|Save Pattern| Memory
     Memory -.->|Recall Similar| Solver
-
+```
 
 ## 📊 Evaluation & Observations
 
