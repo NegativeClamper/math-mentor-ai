@@ -1,4 +1,3 @@
-```markdown
 # Multimodal Math Mentor (Assignment Submission)
 
 **Author:** Ujjwal Reddy Annedla
@@ -18,7 +17,7 @@ I implemented a **Multi-Agent System** using LangChain to mimic how a human tuto
 4.  **The Verifier:** This agent acts as a critic. In my testing, this was crucial for catching sign errors (e.g., confusing `-` for `+`).
 5.  **The Explainer:** Finally, it formats the output into a student-friendly explanation.
 
-```mermaid
+mermaid
 graph TD
     UserInput -->|Image/Audio| GeminiFlash
     GeminiFlash --> ParserAgent
@@ -31,7 +30,6 @@ graph TD
     VerifierAgent -->|Rejects| SolverAgent
     ExplainerAgent --> FinalOutput
 
-```
 
 ## 📊 Evaluation & Observations
 
@@ -92,8 +90,5 @@ streamlit run app.py
 ## 🎥 Demo Video
 
 [Link to Demo Video] - *Shows the HITL flow and Audio transcription in action.*
-
-
-```
 
 ```
