@@ -19,28 +19,35 @@ I implemented a **Multi-Agent System** using LangChain to mimic how a human tuto
 
 ```mermaid
 graph TD
+    %% Styling
+    classDef gemini fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px;
+    classDef agent fill:#fce8e6,stroke:#d93025,stroke-width:2px;
+    classDef database fill:#e6f4ea,stroke:#1e8e3e,stroke-width:2px;
+    classDef hitl fill:#fef7e0,stroke:#f9ab00,stroke-width:2px,stroke-dasharray: 5 5;
+
     %% Nodes
     User([👤 User Input])
-    Gemini(⚡ Gemini 2.0 Flash\nVision + Audio + Logic)
+    Gemini(⚡ Gemini 2.0 Flash\nVision + Audio + Logic):::gemini
     
-    subgraph "5-Agent System"
-        Parser(Agent 1: Parser)
-        Router(Agent 2: Router)
-        Solver(Agent 3: Solver)
-        Verifier(Agent 4: Verifier)
-        Explainer(Agent 5: Explainer)
+    subgraph "5-Agent System (LangChain)"
+        Parser(Agent 1: Parser):::agent
+        Router(Agent 2: Router):::agent
+        Solver(Agent 3: Solver):::agent
+        Verifier(Agent 4: Verifier):::agent
+        Explainer(Agent 5: Explainer):::agent
     end
 
-    RAG[(📚 ChromaDB\nKnowledge Base)]
-    Memory[(💾 Memory\nHistory)]
-    HITL{Review?}
+    RAG[(📚 ChromaDB\nKnowledge Base)]:::database
+    Memory[(💾 Memory\nJSON History)]:::database
+    HITL{Requires\nReview?}:::hitl
+    UserEdit[✍️ HITL Panel]:::hitl
 
     %% Flow
     User -->|Image / Audio / Text| Gemini
     Gemini --> Parser
     Parser --> HITL
     
-    HITL -->|Ambiguous| UserEdit[✍️ HITL Panel]
+    HITL -->|Ambiguous| UserEdit
     UserEdit --> Router
     HITL -->|Clear| Router
     
@@ -53,6 +60,7 @@ graph TD
     
     Explainer -->|Final Output| User
     Explainer -.->|Save Pattern| Memory
+    Memory -.->|Recall Similar| Solver
 
 
 ## 📊 Evaluation & Observations
