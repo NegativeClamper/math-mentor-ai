@@ -17,48 +17,42 @@ I implemented a **Multi-Agent System** using LangChain to mimic how a human tuto
 4.  **The Verifier:** This agent acts as a critic. In my testing, this was crucial for catching sign errors (e.g., confusing `-` for `+`).
 5.  **The Explainer:** Finally, it formats the output into a student-friendly explanation.
 
+```mermaid
 graph TD
-    %% Styling
-    classDef gemini fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px;
-    classDef agent fill:#fce8e6,stroke:#d93025,stroke-width:2px;
-    classDef hitl fill:#fef7e0,stroke:#f9ab00,stroke-width:2px,stroke-dasharray: 5 5;
-    classDef memory fill:#e6f4ea,stroke:#1e8e3e,stroke-width:2px;
-
     %% Nodes
     User([👤 User Input])
-    Gemini(⚡ Gemini 2.0 Flash\nVision + Audio + Logic):::gemini
+    Gemini(⚡ Gemini 2.0 Flash\nVision + Audio + Logic)
     
-    subgraph "5-Agent System (LangChain)"
-        Parser(Agent 1: Parser):::agent
-        Router(Agent 2: Router):::agent
-        Solver(Agent 3: Solver):::agent
-        Verifier(Agent 4: Verifier):::agent
-        Explainer(Agent 5: Explainer):::agent
+    subgraph "5-Agent System"
+        Parser(Agent 1: Parser)
+        Router(Agent 2: Router)
+        Solver(Agent 3: Solver)
+        Verifier(Agent 4: Verifier)
+        Explainer(Agent 5: Explainer)
     end
 
     RAG[(📚 ChromaDB\nKnowledge Base)]
-    Memory[(💾 Memory\nJSON History)]:::memory
-    HITL{Requires\nReview?}:::hitl
+    Memory[(💾 Memory\nHistory)]
+    HITL{Review?}
 
     %% Flow
     User -->|Image / Audio / Text| Gemini
     Gemini --> Parser
     Parser --> HITL
     
-    HITL -->|Yes: Ambiguous| UserEdit[✍️ HITL Panel]:::hitl
+    HITL -->|Ambiguous| UserEdit[✍️ HITL Panel]
     UserEdit --> Router
-    HITL -->|No: Clear| Router
+    HITL -->|Clear| Router
     
-    Router -->|Algebra/Calculus/Prob| Solver
-    Solver <-->|Retrieve Context| RAG
+    Router -->|Classify Topic| Solver
+    Solver <-->|Retrieve Formula| RAG
     Solver -->|Draft Solution| Verifier
     
-    Verifier -->|❌ Error Found| Solver
-    Verifier -->|✅ Verified| Explainer
+    Verifier -->|❌ Reject| Solver
+    Verifier -->|✅ Approve| Explainer
     
     Explainer -->|Final Output| User
     Explainer -.->|Save Pattern| Memory
-    Memory -.->|Recall Similar| Solver
 
 
 ## 📊 Evaluation & Observations
