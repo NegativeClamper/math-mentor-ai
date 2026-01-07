@@ -17,18 +17,48 @@ I implemented a **Multi-Agent System** using LangChain to mimic how a human tuto
 4.  **The Verifier:** This agent acts as a critic. In my testing, this was crucial for catching sign errors (e.g., confusing `-` for `+`).
 5.  **The Explainer:** Finally, it formats the output into a student-friendly explanation.
 
-mermaid
 graph TD
-    UserInput -->|Image/Audio| GeminiFlash
-    GeminiFlash --> ParserAgent
-    ParserAgent -->|Confidence Check| HITL_Loop
-    HITL_Loop --> RouterAgent
-    RouterAgent --> SolverAgent
-    SolverAgent -->|Retrieve Context| ChromaDB
-    SolverAgent --> VerifierAgent
-    VerifierAgent -->|Approves| ExplainerAgent
-    VerifierAgent -->|Rejects| SolverAgent
-    ExplainerAgent --> FinalOutput
+    %% Styling
+    classDef gemini fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px;
+    classDef agent fill:#fce8e6,stroke:#d93025,stroke-width:2px;
+    classDef hitl fill:#fef7e0,stroke:#f9ab00,stroke-width:2px,stroke-dasharray: 5 5;
+    classDef memory fill:#e6f4ea,stroke:#1e8e3e,stroke-width:2px;
+
+    %% Nodes
+    User([👤 User Input])
+    Gemini(⚡ Gemini 2.0 Flash\nVision + Audio + Logic):::gemini
+    
+    subgraph "5-Agent System (LangChain)"
+        Parser(Agent 1: Parser):::agent
+        Router(Agent 2: Router):::agent
+        Solver(Agent 3: Solver):::agent
+        Verifier(Agent 4: Verifier):::agent
+        Explainer(Agent 5: Explainer):::agent
+    end
+
+    RAG[(📚 ChromaDB\nKnowledge Base)]
+    Memory[(💾 Memory\nJSON History)]:::memory
+    HITL{Requires\nReview?}:::hitl
+
+    %% Flow
+    User -->|Image / Audio / Text| Gemini
+    Gemini --> Parser
+    Parser --> HITL
+    
+    HITL -->|Yes: Ambiguous| UserEdit[✍️ HITL Panel]:::hitl
+    UserEdit --> Router
+    HITL -->|No: Clear| Router
+    
+    Router -->|Algebra/Calculus/Prob| Solver
+    Solver <-->|Retrieve Context| RAG
+    Solver -->|Draft Solution| Verifier
+    
+    Verifier -->|❌ Error Found| Solver
+    Verifier -->|✅ Verified| Explainer
+    
+    Explainer -->|Final Output| User
+    Explainer -.->|Save Pattern| Memory
+    Memory -.->|Recall Similar| Solver
 
 
 ## 📊 Evaluation & Observations
