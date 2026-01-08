@@ -58,8 +58,7 @@ if mode == "Text":
 elif mode == "Image":
     img_file = st.sidebar.file_uploader("Upload Image (PNG/JPG)", type=["png", "jpg", "jpeg"])
     if img_file:
-        with open("temp.png", "wb") as f: f.write(img_file.getbuffer())
-        st.sidebar.image("temp.png", caption="Preview", width=200)
+        text = extract_text_from_image(img_file)
         
         if st.sidebar.button("Extract Text (OCR)"):
             with st.spinner("👀 Scanning image..."):
@@ -70,8 +69,7 @@ elif mode == "Image":
 elif mode == "Audio":
     audio_file = st.sidebar.file_uploader("Upload Audio (MP3/WAV)", type=["mp3", "wav"])
     if audio_file:
-        with open("temp.mp3", "wb") as f: f.write(audio_file.getbuffer())
-        st.sidebar.audio("temp.mp3")
+        text = transcribe_audio(audio_file)
         
         if st.sidebar.button("Transcribe Audio"):
             with st.spinner("👂 Listening..."):
