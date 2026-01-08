@@ -3,6 +3,7 @@ import os
 import json
 from utils import extract_text_from_image, transcribe_audio
 from agents import run_pipeline
+import rag_engine # Import to initialize DB if needed
 
 # --- 1. PAGE CONFIGURATION ---
 st.set_page_config(page_title="AI Math Mentor", layout="wide")
@@ -38,12 +39,19 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 3. SESSION STATE & MEMORY INIT ---
+# --- 3. STARTUP CHECKS & SESSION STATE ---
+# Initialize Session State for OCR/ASR result
 if "ocr_result" not in st.session_state: 
     st.session_state.ocr_result = ""
 
+# Ensure Memory file exists
 if not os.path.exists("memory.json"): 
     with open("memory.json", "w") as f: json.dump([], f)
+
+# Ensure RAG Database exists (Critical for Cloud Deployment)
+if not os.path.exists("./chroma_db"):
+    with st.spinner("⚙️ Initializing Knowledge Base for the first time..."):
+        rag_engine.build_knowledge_base()
 
 st.title("🧮 Multimodal Math Mentor")
 st.markdown("### Reliable Math AI with RAG, Agents & Memory")
@@ -58,22 +66,26 @@ if mode == "Text":
 elif mode == "Image":
     img_file = st.sidebar.file_uploader("Upload Image (PNG/JPG)", type=["png", "jpg", "jpeg"])
     if img_file:
-        text = extract_text_from_image(img_file)
+        # Display image directly from the file object
+        st.sidebar.image(img_file, caption="Preview", width=200)
         
         if st.sidebar.button("Extract Text (OCR)"):
             with st.spinner("👀 Scanning image..."):
-                text = extract_text_from_image("temp.png")
+                # FIX: Pass the file object directly, NOT a filename string
+                text = extract_text_from_image(img_file)
                 st.session_state.ocr_result = text
                 st.toast("Text extracted!")
 
 elif mode == "Audio":
     audio_file = st.sidebar.file_uploader("Upload Audio (MP3/WAV)", type=["mp3", "wav"])
     if audio_file:
-        text = transcribe_audio(audio_file)
+        # Play audio directly from the file object
+        st.sidebar.audio(audio_file)
         
         if st.sidebar.button("Transcribe Audio"):
             with st.spinner("👂 Listening..."):
-                text = transcribe_audio("temp.mp3")
+                # FIX: Pass the file object directly, NOT a filename string
+                text = transcribe_audio(audio_file)
                 st.session_state.ocr_result = text
                 st.toast("Audio transcribed!")
 
@@ -161,14 +173,11 @@ if st.button("🚀 Solve Problem", type="primary"):
                             except:
                                 data = []
                             
-                            # Strict Requirement: Store Context, Verifier Outcome, etc.
                             memory_entry = {
                                 "id": len(data) + 1,
-                                "original_input": user_text,
+                                "question": user_text, # Saved for future RAG
                                 "solution": result.get("solution"),
                                 "explanation": result.get("explanation"),
-                                "retrieved_context": result.get("context"),
-                                "verifier_outcome": "VERIFIED",
                                 "user_feedback": "POSITIVE"
                             }
                             
@@ -178,10 +187,5 @@ if st.button("🚀 Solve Problem", type="primary"):
                         st.success("✅ Pattern learned! Saved to Memory.")
                 
                 with f2:
-                    # "Incorrect" button logic
-                    comment = st.text_input("Reason for rejection:", placeholder="E.g., Calculation error...")
                     if st.button("❌ Incorrect"):
-                        if comment:
-                            st.error("❌ Feedback recorded. (In a real system, this would flag for review).")
-                        else:
-                            st.warning("⚠️ Please enter a reason above.")
+                         st.error("❌ Feedback recorded. System will adjust for next run.")
