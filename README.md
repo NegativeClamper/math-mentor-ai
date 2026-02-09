@@ -5,7 +5,7 @@
 ---
 # Project Overview
 
-This is my submission for the **AI Engineer Assignment**. The goal was to build a math tutoring system that doesn't just "guess" answers but actually follows a logical, verifiable process.
+The goal was to build a math tutoring system that doesn't just "guess" answers but actually follows a logical, verifiable process.
 
 ## 🏗️ How It Works (The "5-Agent" Architecture)
 
