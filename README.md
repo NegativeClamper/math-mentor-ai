@@ -1,4 +1,4 @@
-# Multimodal Math Mentor (Assignment Submission)
+# Multimodal Math Mentor
 
 **Author:** Ujjwal Reddy Annedla
 
